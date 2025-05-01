@@ -10,9 +10,13 @@ import { clerkMiddleware } from "@clerk/express";
 import clerkWebhooks from "./controllers/webhooks.js";
 import * as Sentry from "@sentry/node";
 import "./config/instrument.js";
+// add
+ import { clerkMiddleware, requireAuth } from "@clerk/express";
 
 // Initialize Express
 const app = express();
+// Port
+const PORT = process.env.PORT || 5000;
 
 // Connect to Database
 await connectDB();
@@ -31,14 +35,12 @@ app.get("/", (req, res) => {
 app.get("/debug-sentry", function mainHandler(req, res) {
   throw new Error("My first Sentry error!");
 });
-
+// add middlerware
+app.use("/api/users", requireAuth(),userRoutes);
 app.post("/webhooks", clerkWebhooks);
 app.use("/api/company", companyRoutes);
 app.use("/api/jobs", jobRoutes);
-app.use("/api/users", userRoutes);
 
-// Port
-const PORT = process.env.PORT || 5000;
 
 Sentry.setupExpressErrorHandler(app);
 
